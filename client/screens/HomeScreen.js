@@ -94,7 +94,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.roleText}>{item.role}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Register', {item})}>
           <Ionicons name="pencil" size={16} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
@@ -117,8 +117,7 @@ export default function HomeScreen({ navigation }) {
   );
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <View
       style={styles.container}
     >
       <View style={styles.header}>
@@ -146,6 +145,7 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
 
+      <View style={styles.adminList}>
       {loading? 
       
       <View style={styles.loader}>
@@ -153,16 +153,20 @@ export default function HomeScreen({ navigation }) {
       </View>
       
       : 
-      <FlatList
-        data={filteredAdmins}
-        renderItem={renderAdminItem}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.adminList}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+
+      <View >
+        <FlatList
+          data={filteredAdmins}
+          renderItem={renderAdminItem}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+      
       }
-    </KeyboardAvoidingView>
+      </View>
+    </View>
   );
 }
 
@@ -171,7 +175,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  header: {
+  header: 
+  {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -182,19 +187,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  headerTitle: {
+
+  headerTitle: 
+  {
     fontSize: 28,
     fontWeight: '700',
     color: '#1A365D',
   },
-  headerButtons: {
+
+  headerButtons: 
+  {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  iconButton: {
+
+  iconButton: 
+  {
     padding: 4,
   },
+
   searchContainer: {
     paddingHorizontal: 20,
     paddingVertical: 12,
@@ -202,28 +214,40 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  searchInputContainer: {
+
+  searchInputContainer: 
+  {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
     borderRadius: 12,
     paddingHorizontal: 12,
   },
-  searchIcon: {
+
+  searchIcon: 
+  {
     marginRight: 8,
   },
-  searchInput: {
+
+  searchInput: 
+  {
     flex: 1,
     height: 44,
     fontSize: 16,
     color: '#1A365D',
   },
-  adminList: {
-    flex: 1,
+
+  adminList: 
+  {
+    flex: 1
   },
-  listContent: {
-    padding: 20,
+
+  listContent: 
+  {
+    paddingVertical: 20,
+    paddingHorizontal: 10,
   },
+
   adminItem: {
     marginBottom: 16,
     backgroundColor: '#FFFFFF',

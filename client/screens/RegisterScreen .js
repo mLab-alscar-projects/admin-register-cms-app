@@ -10,37 +10,69 @@ import {
   Platform,
   ActivityIndicator
 } from 'react-native';
+
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import axios from 'axios';
-import AsyncStorage, { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function RegisterScreen({ navigation }) {
+export default function RegisterScreen({ navigation, route }) {
+
+  const { item } = route.params || {};
+  const isEditing = !!item;
+
   const [formData, setFormData] = useState({
-    name: '',
-    role: '',
-    email: '',
-    restaurantName: '',
-    password: '',
-    phone: ''
+    name: item?.name || '',
+    role: item?.role || '',
+    email: item?.email || '',
+    restaurantName: item?.restaurantName || '',
+    password: item?.password || '',
+    phone: item?.phone || ''
   });
   
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    registerUsers = async () => {
+  // VALIDATE 
+  const validateInputs = () => {
+    const { email, password, name } = formData;
+
+    if (!email || !name || (!isEditing && !password)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: 'Name, email, and password are required!',
+        position: 'bottom',
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+ 
+// REGISTER
+ const registerUsers = async () => {
+
+      if (!validateInputs()) return;
       setLoading(true);
 
       try {
 
-        await AsyncStorage.getItem("token");
+        const token = await AsyncStorage.getItem("token");
 
         if(!token){
-          console.log("No token found");
+          Toast.show({
+            type: 'error',
+            text1: 'Authorization Error',
+            text2: 'No valid token found',
+            position: 'bottom',
+          });
+          setLoading(false);
+          return;
         }
 
-        const { email, password, role, name, phone, restaurantName } = formData
+        const { email, password, role, name, phone, restaurantName } = formData;
 
         const response = await axios.post("https://acrid-street-production.up.railway.app/api/v2/register",
           {
@@ -52,9 +84,10 @@ export default function RegisterScreen({ navigation }) {
             restaurantName
           },
 
-          { header: 
+          { headers: 
             { 
-              'Content-Type': 'application/json' 
+              'Content-Type': 'application/json' ,
+              Authorization : `bearer${token}`
             } 
           });
 
@@ -66,27 +99,30 @@ export default function RegisterScreen({ navigation }) {
               tetx1: 'Success',
               text2: `User ${email} created successfully`,
               position: 'bottom'
-            })
+            });
+            navigation.navigate("home");
           }
         
       } catch (error) {
-        
+        const errMessage = error.response?.data?.error || 'Something went wrong with adding the admin ';
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: errMessage,
+          position: 'bottom'
+        });
       } finally
       {
         setLoading(false);
       }
     }
+    // ENDS
 
-    registerUsers();
 
-  }, [])
+
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleRegister = () => {
-    console.log('Register:', formData);
   };
 
   return (
@@ -156,15 +192,16 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Password Input */}
             <View style={styles.inputWrapper}>
-              <MaterialIcons name="lock" size={20} color="#2D3748" style={styles.inputIcon} />
+            <MaterialIcons name="lock" size={20} color="#2D3748" style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, formData.password && styles.disabledInput]}
                 placeholder="Password"
                 placeholderTextColor="#718096"
                 value={formData.password}
                 onChangeText={(value) => updateField('password', value)}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                editable={!formData.password}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                 <MaterialIcons 
@@ -190,11 +227,14 @@ export default function RegisterScreen({ navigation }) {
             </View>
 
             <TouchableOpacity 
-              style={styles.registerButton} 
-              onPress={handleRegister}
+              style={[styles.registerButton, loading && styles.disabledButton]}
+              onPress={registerUsers}
               activeOpacity={0.9}
+              disabled={loading}
             >
-              <Text style={styles.registerButtonText}>Create Account</Text>
+              <Text style={styles.registerButtonText}>
+                {loading ? <ActivityIndicator size="small" color="#333" /> : (isEditing ? 'Update Account' : 'Create Account')}
+              </Text>
             </TouchableOpacity>
 
           </View>
@@ -205,41 +245,56 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: 
+  {
     flex: 1,
     backgroundColor: '#F7FAFC',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scrollContent: {
+
+  scrollContent: 
+  {
     flexGrow: 1,
     justifyContent: 'center',
   },
-  registerContainer: {
+
+  registerContainer: 
+  {
     padding: 24,
     backgroundColor: '#F7FAFC',
     width: '100%'
   },
-  header: {
+
+  header: 
+  {
     marginBottom: 32,
   },
-  title: {
+
+  title: 
+  {
     fontSize: 32,
     fontWeight: '700',
     color: '#1A202C',
     marginBottom: 8,
     textAlign: 'center',
   },
-  subtitle: {
+
+  subtitle: 
+  {
     fontSize: 18,
     color: '#4A5568',
     letterSpacing: 0.3,
     textAlign: 'center',
   },
-  form: {
+
+  form: 
+  {
     marginTop: 8,
   },
-  inputWrapper: {
+
+  inputWrapper: 
+  {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
@@ -250,19 +305,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  inputIcon: {
+
+  inputIcon: 
+  {
     marginRight: 12,
   },
-  input: {
+
+  input: 
+  {
     flex: 1,
     color: '#2D3748',
     fontSize: 16,
     letterSpacing: 0.3,
   },
-  eyeIcon: {
+
+  eyeIcon: 
+  {
     padding: 8,
   },
-  registerButton: {
+
+  registerButton: 
+  {
     backgroundColor: '#2B6CB0',
     borderRadius: 16,
     height: 56,
@@ -279,11 +342,24 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  registerButtonText: {
+
+  registerButtonText: 
+  {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+
+  disabledInput: 
+  {
+    backgroundColor: '#E2E8F0', 
+    color: '#A0AEC0', 
+  },
+
+  disabledButton: 
+  { 
+    backgroundColor: '#A0AEC0' 
   },
 
 });
