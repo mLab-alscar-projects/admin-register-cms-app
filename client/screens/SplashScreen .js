@@ -20,8 +20,8 @@ export default function SplashScreen  ({ navigation }) {
   return (
     <View style={styles.splashContainer}>
       <Animated.View style={[styles.logoContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.logo}>Your App Logo</Text>
-        <Text style={styles.subtitle}>Welcome to Our App</Text>
+        <Text style={styles.logo}>ALSCAR TABLES</Text>
+        <Text style={styles.subtitle}>Only for super admin use</Text>
       </Animated.View>
     </View>
   );
@@ -29,52 +29,70 @@ export default function SplashScreen  ({ navigation }) {
 
 const styles = StyleSheet.create({
     // Splash Screen Styles
-    splashContainer: {
+    splashContainer: 
+    {
       flex: 1,
-      backgroundColor: '#3498db',
+      backgroundColor: '#F5F5F5',
       justifyContent: 'center',
       alignItems: 'center',
     },
-    logoContainer: {
+
+    logoContainer: 
+    {
       alignItems: 'center',
     },
-    logo: {
+
+    logo: 
+    {
       fontSize: 32,
       fontWeight: 'bold',
-      color: 'white',
+      color: '#000',
       marginBottom: 10,
+      letterSpacing: 1.5
     },
-    subtitle: {
+
+    subtitle: 
+    {
       fontSize: 18,
-      color: 'white',
-      opacity: 0.8,
+      color: '#000',
     },
   
     // Common Styles
-    container: {
+    container: 
+    {
       flex: 1,
       backgroundColor: '#f4f7fa',
     },
-    scrollContent: {
+
+    scrollContent: 
+    {
       flexGrow: 1,
       justifyContent: 'center',
     },
-    title: {
+
+    title: 
+    {
       fontSize: 28,
       fontWeight: 'bold',
       color: '#2c3e50',
       marginBottom: 10,
     },
-    subtitle: {
+
+    subtitle: 
+    {
       fontSize: 16,
       color: '#7f8c8d',
       marginBottom: 30,
     },
-    inputContainer: {
+
+    inputContainer: 
+    {
       width: '100%',
       marginBottom: 20,
     },
-    input: {
+
+    input: 
+    {
       backgroundColor: 'white',
       paddingHorizontal: 20,
       paddingVertical: 15,

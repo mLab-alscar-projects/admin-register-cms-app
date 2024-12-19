@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -13,7 +13,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage, { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 export default function RegisterScreen({ navigation }) {
   const [formData, setFormData] = useState({
@@ -24,8 +24,62 @@ export default function RegisterScreen({ navigation }) {
     password: '',
     phone: ''
   });
+  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    registerUsers = async () => {
+      setLoading(true);
+
+      try {
+
+        await AsyncStorage.getItem("token");
+
+        if(!token){
+          console.log("No token found");
+        }
+
+        const { email, password, role, name, phone, restaurantName } = formData
+
+        const response = await axios.post("https://acrid-street-production.up.railway.app/api/v2/register",
+          {
+            email, 
+            password, 
+            role, 
+            name, 
+            phone, 
+            restaurantName
+          },
+
+          { header: 
+            { 
+              'Content-Type': 'application/json' 
+            } 
+          });
+
+        if(response.status === 201)
+          {
+            const {email} = response.data
+            Toast.show({
+              type: 'success',
+              tetx1: 'Success',
+              text2: `User ${email} created successfully`,
+              position: 'bottom'
+            })
+          }
+        
+      } catch (error) {
+        
+      } finally
+      {
+        setLoading(false);
+      }
+    }
+
+    registerUsers();
+
+  }, [])
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));

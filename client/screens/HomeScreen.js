@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,27 +9,63 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  ActivityIndicator
 } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
+import axios from 'axios';
+import AsyncStorage, { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [admins, setAdmins] = useState([
-    {
-      name: 'John Doe',
-      role: 'Admin',
-      email: 'john@example.com',
-      restaurantName: 'Munchies',
-      phone: '123-456-7890',
-    },
-    {
-      name: 'Jane Smith',
-      role: 'Manager',
-      email: 'jane@example.com',
-      restaurantName: 'Food Palace',
-      phone: '987-654-3210',
-    },
-  ]);
+  const [loading, setLoading] = useState(false);
+  const [admins, setAdmins] = useState([]);
+
+  // FETCH ADMINS
+  useEffect(() => {
+
+    const fetchAdmins = async () => {
+      setLoading(true);
+      try {
+        const token = await AsyncStorage.getItem('token');
+
+        if(!token){
+          console.log("No token found");
+        }
+
+        const response = await axios.get(`https://acrid-street-production.up.railway.app/api/v2/users`, { headers: { Authorization : `Bearer ${token}`}});
+
+        if (response.status === 200)
+          {
+            Toast.show({
+              type: 'success',
+              text1: 'Success',
+              text2: "Admins fetched successfully",
+              position: 'bottom'
+            });
+
+            setAdmins(response.data.admins);
+            console.log("Admins data", response.data.admins);
+          }
+      } catch (error) {
+        const errMessage = response?.data?.error || 'Something went wrong with fetching data ';
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: errMessage,
+          position: 'bottom'
+        });
+      } finally
+        {
+          setLoading(false);
+        }
+    }
+
+    fetchAdmins();
+
+  }, []);
+  // ENDS
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -110,6 +146,13 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
 
+      {loading? 
+      
+      <View style={styles.loader}>
+        <ActivityIndicator size={'large'}/> 
+      </View>
+      
+      : 
       <FlatList
         data={filteredAdmins}
         renderItem={renderAdminItem}
@@ -118,6 +161,7 @@ export default function HomeScreen({ navigation }) {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
+      }
     </KeyboardAvoidingView>
   );
 }
@@ -241,4 +285,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#2D3748',
   },
+
+  loader:
+  {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
