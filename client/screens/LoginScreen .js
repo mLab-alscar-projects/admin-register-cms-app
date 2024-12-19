@@ -1,159 +1,201 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView
+import {
+    View,
+    Text,
+    TextInput,
+    Pressable,
+    StyleSheet,
+    ActivityIndicator
 } from 'react-native';
+
+// STORAGE
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import Toast from 'react-native-toast-message';
+
+// ICONS
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    console.log('Login:', { email, password });
+    // HANDLE LOGIN
+const handleLogin = async () => {
+
+    setLoading(true);
+    try {
+        const response = await axios.post(
+            'https://acrid-street-production.up.railway.app/api/v2/login',
+            { email, password },
+            { headers: { 'Content-Type': 'application/json' } } 
+        );
+        
+        const { token, email: userEmail } = response.data;
+  
+        if (token) {
+            Toast.show({
+              type: 'success', 
+              text1: `Welcome back, ${userEmail}!`,
+              text2: 'You have successfully logged in.',
+              position: 'bottom',
+            });
+  
+            await AsyncStorage.setItem('token', token);
+            await AsyncStorage.setItem('userEmail', userEmail);
+            navigation.navigate('home');
+  
+            return true;
+        } else {
+            Toast.show({
+                type: 'eerror', 
+                text1: `Error`,
+                text2: 'Login failed. Please try again.',
+                position: 'bottom',
+              });
+            return false;
+        }
+    } catch (error) {
+        console.error("Login error:", {
+          message: error.message,
+          response: error.response ? error.response.data : "No response data",
+          status: error.response ? error.response.status : "No status",
+          request: error.request,
+        });
+
+        Toast.show({
+            type: 'eerror', 
+            text1: `Error`,
+            text2: `Login failed. Please try again.${error}`,
+            position: 'bottom',
+          });
+  
+        return false;
+    } finally
+    {
+        setLoading(false);
+    }
   };
 
-  const InputField = ({ icon, placeholder, value, onChangeText, secureTextEntry, isPassword }) => (
-    <View style={styles.inputWrapper}>
-      <MaterialIcons name={icon} size={22} color="#2D3748" style={styles.inputIcon} />
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        placeholderTextColor="#718096"
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={isPassword ? !showPassword : false}
-        autoCapitalize="none"
-      />
-      {isPassword && (
-        <TouchableOpacity 
-          onPress={() => setShowPassword(!showPassword)} 
-          style={styles.eyeIcon}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <MaterialIcons 
-            name={showPassword ? 'visibility' : 'visibility-off'} 
-            size={22} 
-            color="#2D3748" 
-          />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <View style={styles.loginContainer}>
+                <View style={styles.header}>
+                    <Text style={styles.welcomeText}>Welcome back! 👋</Text>
+                    <Text style={styles.title}>Login to admin portal</Text>
+                    <Text style={styles.subtitle}>Good to see you again</Text>
+                </View>
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.loginContainer}>
-            <View style={styles.header}>
-              <Text style={styles.welcomeText}>Welcome back! 👋</Text>
-              <Text style={styles.title}>Login to admin portal</Text>
-              <Text style={styles.subtitle}>Good to see you again</Text>
+                <View style={styles.form}>
+                    {/* Email Input */}
+                    <View style={styles.inputWrapper}>
+                        <MaterialIcons name="email" size={22} color="#2D3748" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your email"
+                            placeholderTextColor="#718096"
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
+                        />
+                    </View>
+
+                    {/* Password Input */}
+                    <View style={styles.inputWrapper}>
+                        <MaterialIcons name="lock" size={22} color="#2D3748" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your password"
+                            placeholderTextColor="#718096"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!showPassword}
+                            autoCapitalize="none"
+                        />
+                        <Pressable
+                            onPress={() => setShowPassword(!showPassword)}
+                            style={styles.eyeIcon}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        >
+                            <MaterialIcons
+                                name={showPassword ? 'visibility' : 'visibility-off'}
+                                size={22}
+                                color="#2D3748"
+                            />
+                        </Pressable>
+                    </View>
+
+                    <Pressable
+                        style={styles.loginButton}
+                        onPress={handleLogin}
+                        activeOpacity={0.9}
+                    >
+                        <Text style={styles.loginButtonText}>{loading? <ActivityIndicator size={'small'} color={'#333'}/> : 'Sign In'}</Text>
+                    </Pressable>
+                </View>
             </View>
-
-            <View style={styles.form}>
-              <InputField
-                icon="email"
-                placeholder="Enter your email"
-                value={email}
-                onChangeText={setEmail}
-              />
-              
-              <InputField
-                icon="lock"
-                placeholder="Enter your password"
-                value={password}
-                onChangeText={setPassword}
-                isPassword
-              />
-
-              <TouchableOpacity 
-                style={styles.loginButton} 
-                onPress={handleLogin}
-                activeOpacity={0.9}
-              >
-                <Text style={styles.loginButtonText}>Sign In</Text>
-              </TouchableOpacity>
-
-
-              <TouchableOpacity 
-                style={styles.registerLink}
-                onPress={() => navigation.navigate('Register')}
-              >
-                <Text style={styles.registerText}>
-                  Don't have an account? <Text style={styles.registerTextBold}>Sign up</Text>
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F7FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  loginContainer: {
-    flex: 1,
+ 
+  loginContainer: 
+  {
     paddingHorizontal: 24,
     paddingVertical: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: '100%',
+    width: '100%',
   },
-  header: {
+
+  header: 
+  {
     alignItems: 'center',
     marginBottom: 40,
   },
-  welcomeText: {
+
+  welcomeText: 
+  {
     fontSize: 24,
     fontWeight: '600',
     color: '#2B6CB0',
     marginBottom: 12,
   },
-  title: {
+
+  title: 
+  {
     fontSize: 28,
     fontWeight: '700',
     color: '#1A202C',
     marginBottom: 8,
     textAlign: 'center',
   },
-  subtitle: {
+
+  subtitle: 
+  {
     fontSize: 16,
     color: '#4A5568',
     letterSpacing: 0.3,
     textAlign: 'center',
   },
-  form: {
+
+  form: 
+  {
     width: '100%',
     maxWidth: 400,
   },
-  inputWrapper: {
+
+  inputWrapper: 
+  {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
@@ -172,30 +214,42 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
-  inputIcon: {
+
+  inputIcon: 
+  {
     marginRight: 12,
   },
-  input: {
+
+  input:
+   {
     flex: 1,
     color: '#2D3748',
     fontSize: 16,
     letterSpacing: 0.3,
   },
-  eyeIcon: {
+
+  eyeIcon: 
+  {
     padding: 8,
   },
-  forgotPassword: {
+
+  forgotPassword: 
+  {
     alignSelf: 'flex-end',
     marginBottom: 24,
     marginTop: 4,
   },
-  forgotPasswordText: {
+
+  forgotPasswordText: 
+  {
     color: '#2B6CB0',
     fontSize: 14,
     fontWeight: '600',
     letterSpacing: 0.3,
   },
-  loginButton: {
+
+  loginButton: 
+  {
     backgroundColor: '#2B6CB0',
     borderRadius: 16,
     height: 60,
@@ -211,6 +265,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
+
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
@@ -218,17 +273,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   
-  registerLink: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  registerText: {
-    color: '#4A5568',
-    fontSize: 15,
-    letterSpacing: 0.3,
-  },
-  registerTextBold: {
-    color: '#2B6CB0',
-    fontWeight: '600',
-  },
 });

@@ -30,88 +30,105 @@ export default function RegisterScreen({ navigation }) {
     console.log('Register:', formData);
   };
 
-  const InputField = ({ icon, placeholder, value, onChangeText, secureTextEntry, keyboardType }) => (
-    <View style={styles.inputWrapper}>
-      <MaterialIcons name={icon} size={20} color="#2D3748" style={styles.inputIcon} />
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        placeholderTextColor="#718096"
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry && !showPassword}
-        keyboardType={keyboardType || 'default'}
-        autoCapitalize="none"
-      />
-      {secureTextEntry && (
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-          <MaterialIcons 
-            name={showPassword ? 'visibility' : 'visibility-off'} 
-            size={20} 
-            color="#2D3748" 
-          />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-
   return (
     <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.registerContainer}>
           <View style={styles.header}>
-            <Text style={styles.title}>Register an admin</Text>
             <Text style={styles.subtitle}>Welcome new member in team</Text>
           </View>
 
           <View style={styles.form}>
-            <InputField
-              icon="person"
-              placeholder="Full Name"
-              value={formData.name}
-              onChangeText={(value) => updateField('name', value)}
-            />
-            
-            <InputField
-              icon="work"
-              placeholder="Role"
-              value={formData.role}
-              onChangeText={(value) => updateField('role', value)}
-            />
-            
-            <InputField
-              icon="email"
-              placeholder="Email"
-              value={formData.email}
-              onChangeText={(value) => updateField('email', value)}
-              keyboardType="email-address"
-            />
-            
-            <InputField
-              icon="store"
-              placeholder="Restaurant Name"
-              value={formData.restaurantName}
-              onChangeText={(value) => updateField('restaurantName', value)}
-            />
-            
-            <InputField
-              icon="lock"
-              placeholder="Password"
-              value={formData.password}
-              onChangeText={(value) => updateField('password', value)}
-              secureTextEntry
-            />
-            
-            <InputField
-              icon="phone"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChangeText={(value) => updateField('phone', value)}
-              keyboardType="phone-pad"
-            />
+            {/* Full Name Input */}
+            <View style={styles.inputWrapper}>
+              <MaterialIcons name="person" size={20} color="#2D3748" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Full Name"
+                placeholderTextColor="#718096"
+                value={formData.name}
+                onChangeText={(value) => updateField('name', value)}
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* Role Input */}
+            <View style={styles.inputWrapper}>
+              <MaterialIcons name="work" size={20} color="#2D3748" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Role"
+                placeholderTextColor="#718096"
+                value={formData.role}
+                onChangeText={(value) => updateField('role', value)}
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* Email Input */}
+            <View style={styles.inputWrapper}>
+              <MaterialIcons name="email" size={20} color="#2D3748" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#718096"
+                value={formData.email}
+                onChangeText={(value) => updateField('email', value)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* Restaurant Name Input */}
+            <View style={styles.inputWrapper}>
+              <MaterialIcons name="store" size={20} color="#2D3748" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Restaurant Name"
+                placeholderTextColor="#718096"
+                value={formData.restaurantName}
+                onChangeText={(value) => updateField('restaurantName', value)}
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* Password Input */}
+            <View style={styles.inputWrapper}>
+              <MaterialIcons name="lock" size={20} color="#2D3748" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#718096"
+                value={formData.password}
+                onChangeText={(value) => updateField('password', value)}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                <MaterialIcons 
+                  name={showPassword ? 'visibility' : 'visibility-off'} 
+                  size={20} 
+                  color="#2D3748" 
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Phone Number Input */}
+            <View style={styles.inputWrapper}>
+              <MaterialIcons name="phone" size={20} color="#2D3748" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Phone Number"
+                placeholderTextColor="#718096"
+                value={formData.phone}
+                onChangeText={(value) => updateField('phone', value)}
+                keyboardType="phone-pad"
+                autoCapitalize="none"
+              />
+            </View>
 
             <TouchableOpacity 
               style={styles.registerButton} 
@@ -121,14 +138,6 @@ export default function RegisterScreen({ navigation }) {
               <Text style={styles.registerButtonText}>Create Account</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.loginLink}
-              onPress={() => navigation.navigate('Login')}
-            >
-              <Text style={styles.loginText}>
-                Want to see all admins? <Text style={styles.loginTextBold}>View admins</Text>
-              </Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -163,7 +172,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#4A5568',
     letterSpacing: 0.3,
     textAlign: 'center',
@@ -218,14 +227,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  loginText: {
-    color: '#333',             
-    fontSize: 16,              
-    fontWeight: '500',         
-    textAlign: 'center',
-  },
-  loginTextBold: {
-    color: '#2ec33f',          
-    fontWeight: 'bold',        
-  },
 });
