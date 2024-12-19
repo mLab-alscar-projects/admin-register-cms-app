@@ -8,6 +8,7 @@ import SplashScreen from './screens/SplashScreen ';
 import LoginScreen from './screens/LoginScreen ';
 import RegisterScreen from './screens/RegisterScreen ';
 import HomeScreen from './screens/HomeScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import Toast from 'react-native-toast-message';
 
 const Stack = createNativeStackNavigator();
@@ -19,6 +20,23 @@ const App = () => {
         <Stack.Screen name="Splash" component={SplashScreen} />
 
         <Stack.Screen name="Login" component={LoginScreen} />
+
+        <Stack.Screen name="Profile" component={ProfileScreen} 
+         options={{
+          headerShown: true,
+          headerTitle: 'Profile', 
+          headerStyle: {
+            backgroundColor: '#3498db', 
+          },
+          headerTitleStyle: {
+            color: 'rgba(0, 0, 0, .5)', 
+            fontSize: 18,
+            fontWeight: 'bold',
+            letterSpacing: 1
+          },
+          headerTintColor:  '#000', 
+        }}
+        />
 
         <Stack.Screen name="Register" component={RegisterScreen} 
          options={{

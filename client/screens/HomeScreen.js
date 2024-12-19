@@ -8,7 +8,9 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,6 +39,10 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('Register');
   };
 
+  const handleProfileNav = () => {
+    navigation.navigate('Profile');
+  };
+
   const filteredAdmins = admins.filter((admin) =>
     admin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     admin.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -44,13 +50,34 @@ export default function HomeScreen({ navigation }) {
   );
 
   const renderAdminItem = ({ item }) => (
-    <View style={styles.adminItem}>
-      <Text style={styles.adminText}>Name: {item.name}</Text>
-      <Text style={styles.adminText}>Role: {item.role}</Text>
-      <Text style={styles.adminText}>Email: {item.email}</Text>
-      <Text style={styles.adminText}>Restaurant: {item.restaurantName}</Text>
-      <Text style={styles.adminText}>Phone: {item.phone}</Text>
-    </View>
+    <Animated.View style={styles.adminItem}>
+      <View style={styles.adminHeader}>
+        <View style={styles.adminInfo}>
+          <Text style={styles.adminName}>{item.name}</Text>
+          <View style={styles.roleBadge}>
+            <Text style={styles.roleText}>{item.role}</Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="pencil" size={16} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.divider} />
+      <View style={styles.adminDetails}>
+        <View style={styles.detailRow}>
+          <Ionicons name="mail-outline" size={18} color="#718096" />
+          <Text style={styles.detailText}>{item.email}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Ionicons name="restaurant-outline" size={18} color="#718096" />
+          <Text style={styles.detailText}>{item.restaurantName}</Text>
+        </View>
+        <View style={styles.detailRow}>
+          <Ionicons name="call-outline" size={18} color="#718096" />
+          <Text style={styles.detailText}>{item.phone}</Text>
+        </View>
+      </View>
+    </Animated.View>
   );
 
   return (
@@ -59,24 +86,37 @@ export default function HomeScreen({ navigation }) {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Admin Home Screen</Text>
-        <TouchableOpacity onPress={handleAddAdmin} style={styles.addAdminButton}>
-          <Text style={styles.addAdminButtonText}>Add Admin</Text>
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Admin Dashboard</Text>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity onPress={handleAddAdmin} style={styles.iconButton}>
+            <Ionicons name="add-circle" size={28} color="#4A90E2" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleProfileNav} style={styles.iconButton}>
+            <Ionicons name="person-circle" size={28} color="#4A90E2" />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search by name, email, or restaurant"
-        value={searchQuery}
-        onChangeText={handleSearch}
-      />
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Ionicons name="search" size={20} color="#A0AEC0" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search admins..."
+            placeholderTextColor="#A0AEC0"
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
+        </View>
+      </View>
 
       <FlatList
         data={filteredAdmins}
         renderItem={renderAdminItem}
         keyExtractor={(item, index) => index.toString()}
         style={styles.adminList}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
       />
     </KeyboardAvoidingView>
   );
@@ -85,67 +125,120 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC',
-    paddingHorizontal: 20,
-    paddingTop: 40,
+    backgroundColor: '#F8FAFC',
   },
-
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
   },
-
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#2D3748',
+    color: '#1A365D',
   },
-
-  addAdminButton: {
-    backgroundColor: '#2B6CB0',
-    paddingVertical: 10,
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconButton: {
+    padding: 4,
+  },
+  searchContainer: {
     paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
   },
-
-  addAdminButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    paddingHorizontal: 12,
   },
-
+  searchIcon: {
+    marginRight: 8,
+  },
   searchInput: {
-    height: 50,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginVertical: 20,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    flex: 1,
+    height: 44,
+    fontSize: 16,
+    color: '#1A365D',
   },
-
   adminList: {
-    marginTop: 10,
+    flex: 1,
   },
-
+  listContent: {
+    padding: 20,
+  },
   adminItem: {
+    marginBottom: 16,
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginBottom: 15,
+    borderRadius: 12,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 3,
   },
-
-  adminText: {
-    fontSize: 16,
-    color: '#4A5568',
+  adminHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  adminInfo: {
+    flex: 1,
+  },
+  adminName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A365D',
     marginBottom: 4,
+  },
+  roleBadge: {
+    backgroundColor: '#EBF8FF',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  roleText: {
+    color: '#2B6CB0',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  actionButton: {
+    backgroundColor: '#4A90E2',
+    padding: 8,
+    borderRadius: 8,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 12,
+  },
+  adminDetails: {
+    gap: 12,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  detailText: {
+    flex: 1,
+    fontSize: 15,
+    color: '#2D3748',
   },
 });

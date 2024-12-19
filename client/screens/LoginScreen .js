@@ -33,9 +33,9 @@ const handleLogin = async () => {
             { headers: { 'Content-Type': 'application/json' } } 
         );
         
-        const { token, email: userEmail } = response.data;
+        const { token, email: userEmail, role: userRole } = response.data;
   
-        if (token) {
+        if (token && userRole === 'super-admin') {
             Toast.show({
               type: 'success', 
               text1: `Welcome back, ${userEmail}!`,
@@ -52,7 +52,7 @@ const handleLogin = async () => {
             Toast.show({
                 type: 'eerror', 
                 text1: `Error`,
-                text2: 'Login failed. Please try again.',
+                text2: 'Login failed. Not super admin',
                 position: 'bottom',
               });
             return false;
