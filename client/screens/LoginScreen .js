@@ -23,61 +23,63 @@ export default function LoginScreen({ navigation }) {
     const [loading, setLoading] = useState(false);
 
     // HANDLE LOGIN
-const handleLogin = async () => {
+    const handleLogin = async () => {
 
-    setLoading(true);
-    try {
-        const response = await axios.post(
-            'https://acrid-street-production.up.railway.app/api/v2/login',
-            { email, password },
-            { headers: { 'Content-Type': 'application/json' } } 
-        );
-        
-        const { token, email: userEmail, role: userRole } = response.data;
-  
-        if (token && userRole === 'super-admin') {
-            Toast.show({
-              type: 'success', 
-              text1: `Welcome back, ${userEmail}!`,
-              text2: 'You have successfully logged in.',
-              position: 'bottom',
+        setLoading(true);
+        try {
+            const response = await axios.post(
+                'https://acrid-street-production.up.railway.app/api/v2/login',
+                { email, password },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+
+            const { token, email: userEmail, role: userRole } = response.data;
+            console.log(response.data);
+
+            if (token && userRole === 'super-admin') {
+                Toast.show({
+                    type: 'success',
+                    text1: `Welcome back, ${userEmail}!`,
+                    text2: 'You have successfully logged in.',
+                    position: 'bottom',
+                });
+
+                await AsyncStorage.setItem('token', token);
+                await AsyncStorage.setItem('userEmail', userEmail);
+                navigation.navigate('home');
+
+                return true;
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: `Error`,
+                    text2: 'Login failed. Not super admin',
+                    position: 'bottom',
+                });
+                return false;
+            }
+        } catch (error) {
+            console.error("Login error:", {
+                message: error.message,
+                response: error.response ? error.response.data : "No response data",
+                status: error.response ? error.response.status : "No status",
+                request: error.request,
             });
-  
-            await AsyncStorage.setItem('token', token);
-            await AsyncStorage.setItem('userEmail', userEmail);
-            navigation.navigate('home');
-  
-            return true;
-        } else {
-            Toast.show({
-                type: 'eerror', 
-                text1: `Error`,
-                text2: 'Login failed. Not super admin',
-                position: 'bottom',
-              });
-            return false;
-        }
-    } catch (error) {
-        console.error("Login error:", {
-          message: error.message,
-          response: error.response ? error.response.data : "No response data",
-          status: error.response ? error.response.status : "No status",
-          request: error.request,
-        });
 
-        Toast.show({
-            type: 'eerror', 
-            text1: `Error`,
-            text2: `Login failed. Please try again.${error}`,
-            position: 'bottom',
-          });
-  
-        return false;
-    } finally
-    {
-        setLoading(false);
-    }
-  };
+            const errorMessage = error.response?.data?.message || "Login failed. Please try again.";
+
+            Toast.show({
+                type: 'error',
+                text1: `Error`,
+                text2: `${errorMessage}`,
+                position: 'bottom',
+            });
+
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <View style={styles.container}>

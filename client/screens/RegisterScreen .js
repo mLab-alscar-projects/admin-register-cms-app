@@ -7,9 +7,13 @@ import {
   StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  ActivityIndicator
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RegisterScreen({ navigation }) {
   const [formData, setFormData] = useState({
@@ -21,6 +25,7 @@ export default function RegisterScreen({ navigation }) {
     phone: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
