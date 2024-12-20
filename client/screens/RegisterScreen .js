@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function RegisterScreen({ navigation, route }) {
 
   const { item } = route.params || {};
-  const isEditing = !!item;
+  const isEditing = item && Object.keys(item).length > 0;
 
   const [formData, setFormData] = useState({
     name: item?.name || '',
@@ -27,8 +27,9 @@ export default function RegisterScreen({ navigation, route }) {
     email: item?.email || '',
     restaurantName: item?.restaurantName || '',
     password: item?.password || '',
-    phone: item?.phone || ''
+    phone: item?.phone ? String(item.phone) : '',
   });
+
   
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,7 +60,7 @@ export default function RegisterScreen({ navigation, route }) {
 
       try {
 
-        const token = await AsyncStorage.getItem("token");
+        const token = await AsyncStorage.getItem('token');
 
         if(!token){
           Toast.show({
@@ -68,6 +69,7 @@ export default function RegisterScreen({ navigation, route }) {
             text2: 'No valid token found',
             position: 'bottom',
           });
+          console.log('Token', token)
           setLoading(false);
           return;
         }
@@ -87,7 +89,7 @@ export default function RegisterScreen({ navigation, route }) {
           { headers: 
             { 
               'Content-Type': 'application/json' ,
-              Authorization : `bearer${token}`
+              Authorization : `Bearer ${token}`
             } 
           });
 
@@ -118,12 +120,79 @@ export default function RegisterScreen({ navigation, route }) {
     }
     // ENDS
 
+    // UPDATE THE USER
+    const updateAdmin = async () => {
+      setLoading(true);
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if(!token){
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: 'No valid token found',
+            position: 'bottom'
+          });
+          setLoading(false);
+          return;
+        };
+
+        // EXTRACT DATA
+        const 
+        { email, 
+          role, 
+          name, 
+          phone, 
+          restaurantName 
+        } = formData
+
+        
+        const updatedUser = 
+        {
+          email, 
+          role, 
+          name, 
+          phone, 
+          restaurantName
+        }
+
+        const response = await axios.put(`https://acrid-street-production.up.railway.app/api/v2/update/${item.id}`, 
+          {updatedUser}, 
+          {headers: 
+            {
+              "Content-Type": "application/json", 
+              Authorization: `Bearer ${token}`
+            }});
+
+        if (response.status === 200)
+          {
+          Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: 'Admin updated successfully',
+            position: 'bottom'
+          });
+          navigation.navigate('home');
+        }
+
+      } catch (error) {
+        const errMessage = error.response?.data?.error || 'Error updating admin';
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: errMessage,
+          position: 'bottom'
+        });
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    // ENDS
 
 
-
-  const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+    const updateField = (field, value) => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    };
 
   return (
     <KeyboardAvoidingView 
@@ -133,7 +202,7 @@ export default function RegisterScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.registerContainer}>
           <View style={styles.header}>
-            <Text style={styles.subtitle}>Welcome new member in team</Text>
+            <Text style={styles.subtitle}>{isEditing ? 'Update the user details' : 'Welcome new member in team'}</Text>
           </View>
 
           <View style={styles.form}>
@@ -194,22 +263,30 @@ export default function RegisterScreen({ navigation, route }) {
             <View style={styles.inputWrapper}>
             <MaterialIcons name="lock" size={20} color="#2D3748" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, formData.password && styles.disabledInput]}
+                style={[styles.input, isEditing && styles.disabledInput]}
                 placeholder="Password"
                 placeholderTextColor="#718096"
                 value={formData.password}
                 onChangeText={(value) => updateField('password', value)}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
-                editable={!formData.password}
+                editable={!isEditing}
               />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                <MaterialIcons 
-                  name={showPassword ? 'visibility' : 'visibility-off'} 
-                  size={20} 
-                  color="#2D3748" 
-                />
-              </TouchableOpacity>
+                {isEditing ?
+
+                '' 
+                : 
+
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+
+                  <MaterialIcons 
+                    name={showPassword ? 'visibility' : 'visibility-off'} 
+                    size={20} 
+                    color="#2D3748" 
+                  />
+
+                </TouchableOpacity>
+                }
             </View>
 
             {/* Phone Number Input */}
@@ -228,7 +305,7 @@ export default function RegisterScreen({ navigation, route }) {
 
             <TouchableOpacity 
               style={[styles.registerButton, loading && styles.disabledButton]}
-              onPress={registerUsers}
+              onPress={isEditing ? updateAdmin : registerUsers}
               activeOpacity={0.9}
               disabled={loading}
             >

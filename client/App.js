@@ -41,7 +41,7 @@ const App = () => {
         <Stack.Screen name="Register" component={RegisterScreen} 
          options={{
           headerShown: true,
-          headerTitle: 'Add Admin', 
+          headerTitle: 'Register', 
           headerStyle: {
             backgroundColor: '#3498db', 
           },
