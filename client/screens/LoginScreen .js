@@ -45,7 +45,7 @@ export default function LoginScreen({ navigation }) {
                 });
 
                 await AsyncStorage.setItem('token', token);
-                await AsyncStorage.setItem('userEmail', userEmail);
+                await AsyncStorage.setItem('adminData', JSON.stringify(response.data));
                 navigation.navigate('home');
 
                 return true;

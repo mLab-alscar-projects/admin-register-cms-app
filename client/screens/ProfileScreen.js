@@ -1,181 +1,161 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Platform,
-  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 export default function ProfileScreen({ navigation }) {
-  const userData = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'Admin',
+  const [adminData, setAdminData] = useState({});
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+
+  const fetchUserDetails = async () => {
+    try {
+      const admin = await AsyncStorage.getItem('adminData');
+      if (admin) {
+        const parsedData = JSON.parse(admin);
+        setAdminData(parsedData);
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error loading data',
+        position: 'bottom'
+      });
+    }
   };
 
-  const menuItems = [
-    {
-      icon: 'person-outline',
-      title: 'Edit Profile',
-      onPress: () => navigation.navigate('EditProfile'),
-    },
-    {
-      icon: 'lock-closed-outline',
-      title: 'Change Password',
-      onPress: () => navigation.navigate('ChangePassword'),
-    },
-  ];
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('adminData');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error logging out',
+        position: 'bottom'
+      });
+    }
+  };
+
+  const DataRow = ({ label, value }) => (
+    <View style={styles.dataRow}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.value}>{value}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-
       <ScrollView style={styles.content}>
-        <View style={styles.userHeader}>
-          <Image
-            source={{ uri: 'https://via.placeholder.com/100' }}
-            style={styles.avatar}
+        <View style={styles.card}>
+          <DataRow label="Name" value={adminData.name} />
+          <DataRow label="Email" value={adminData.email} />
+          <DataRow label="Role" value={adminData.role} />
+          <DataRow label="Restaurant" value={adminData.restaurantName} />
+          <DataRow label="Phone" value={adminData.phone} />
+          <DataRow 
+            label="Created" 
+            value={formatDate(adminData.timestamp)} 
           />
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>{userData.name}</Text>
-            <Text style={styles.userEmail}>{userData.email}</Text>
-            <View style={styles.roleBadge}>
-              <Text style={styles.roleText}>{userData.role}</Text>
-            </View>
-          </View>
         </View>
 
-        <View style={styles.menuSection}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={item.onPress}
-            >
-              <View style={styles.menuItemLeft}>
-                <Ionicons name={item.icon} size={22} color="#4A90E2" />
-                <Text style={styles.menuItemText}>{item.title}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#CBD5E0" />
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={22} color="#DC2626" />
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
+      <Toast />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: 
+  {
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  header: {
+
+  content: 
+  {
+    flex: 1,
+    padding: 16,
+  },
+
+  card: 
+  {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+
+  dataRow: 
+  {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A365D',
-  },
-  backButton: {
-    padding: 4,
-  },
-  placeholder: {
-    width: 32,
-  },
-  content: {
-    flex: 1,
-  },
-  userHeader: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 16,
-  },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1A365D',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#718096',
-    marginBottom: 8,
-  },
-  roleBadge: {
-    backgroundColor: '#EBF8FF',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-  },
-  roleText: {
-    color: '#2B6CB0',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  menuSection: {
-    backgroundColor: '#FFFFFF',
-    marginTop: 12,
-    paddingHorizontal: 20,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  menuItemText: {
+
+  label: 
+  {
     fontSize: 16,
-    color: '#2D3748',
+    color: '#64748B',
+    fontWeight: '500',
   },
-  logoutButton: {
+
+  value: 
+  {
+    fontSize: 16,
+    color: '#1E293B',
+    fontWeight: '400',
+  },
+
+  logoutButton: 
+  {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     backgroundColor: '#FEE2E2',
-    margin: 20,
+    marginTop: 20,
     padding: 16,
     borderRadius: 12,
   },
-  logoutText: {
+
+  logoutText: 
+  {
     color: '#DC2626',
     fontSize: 16,
     fontWeight: '600',

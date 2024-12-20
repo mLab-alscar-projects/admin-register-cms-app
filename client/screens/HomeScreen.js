@@ -6,16 +6,18 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  KeyboardAvoidingView,
   Platform,
   Animated,
   ActivityIndicator
 } from 'react-native';
 
+// ICONS
 import { Ionicons } from '@expo/vector-icons';
+
+// STORAGE
 import Toast from 'react-native-toast-message';
 import axios from 'axios';
-import AsyncStorage, { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,10 +32,6 @@ export default function HomeScreen({ navigation }) {
       try {
         const token = await AsyncStorage.getItem('token');
 
-        if(!token){
-          console.log("No token found");
-        }
-
         const response = await axios.get(`https://acrid-street-production.up.railway.app/api/v2/users`, { headers: { Authorization : `Bearer ${token}`}});
 
         if (response.status === 200)
@@ -46,7 +44,6 @@ export default function HomeScreen({ navigation }) {
             });
 
             setAdmins(response.data.admins);
-            console.log("Admins data", response.data.admins);
           }
       } catch (error) {
         const errMessage = response?.data?.error || 'Something went wrong with fetching data ';
@@ -67,24 +64,29 @@ export default function HomeScreen({ navigation }) {
   }, []);
   // ENDS
 
+  // SEARCH
   const handleSearch = (text) => {
     setSearchQuery(text);
   };
 
+  // NAVIGATE TO RESGISTER
   const handleAddAdmin = () => {
     navigation.navigate('Register');
   };
 
+  // NAVIGATE TO PROFILE
   const handleProfileNav = () => {
     navigation.navigate('Profile');
   };
 
+  // FILTER ADMINS
   const filteredAdmins = admins.filter((admin) =>
     admin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     admin.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     admin.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // RENDER
   const renderAdminItem = ({ item }) => (
     <Animated.View style={styles.adminItem}>
       <View style={styles.adminHeader}>
