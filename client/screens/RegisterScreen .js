@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7FAFC',
     justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 
   scrollContent: 
@@ -338,9 +338,9 @@ const styles = StyleSheet.create({
 
   registerContainer: 
   {
-    padding: 24,
+    paddingVertical: 24,
     backgroundColor: '#F7FAFC',
-    width: '100%'
+    flex: 1,
   },
 
   header: 
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     borderRadius: 16,
     marginBottom: 16,
     paddingHorizontal: 16,

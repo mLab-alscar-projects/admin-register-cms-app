@@ -34,7 +34,6 @@ export default function LoginScreen({ navigation }) {
             );
 
             const { token, email: userEmail, role: userRole } = response.data;
-            console.log(response.data);
 
             if (token && userRole === 'super-admin') {
                 Toast.show({

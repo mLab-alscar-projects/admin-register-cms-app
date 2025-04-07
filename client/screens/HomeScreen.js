@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
 
   searchContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
