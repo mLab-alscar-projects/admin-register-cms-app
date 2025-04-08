@@ -202,7 +202,7 @@ export default function RegisterScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.registerContainer}>
           <View style={styles.header}>
-            <Text style={styles.subtitle}>{isEditing ? 'Update the user details' : 'Welcome new member in team'}</Text>
+            <Text style={styles.subtitle}>{isEditing ? 'Update the user details' : 'Welcome new member in the team'}</Text>
           </View>
 
           <View style={styles.form}>

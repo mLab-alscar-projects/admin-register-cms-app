@@ -33,15 +33,6 @@ export default function ProfileScreen({ navigation }) {
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('token');
@@ -75,10 +66,6 @@ export default function ProfileScreen({ navigation }) {
           <DataRow label="Role" value={adminData.role} />
           <DataRow label="Restaurant" value={adminData.restaurantName} />
           <DataRow label="Phone" value={adminData.phone} />
-          <DataRow 
-            label="Created" 
-            value={formatDate(adminData.timestamp)} 
-          />
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>

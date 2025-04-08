@@ -30,29 +30,29 @@ const App = () => {
             backgroundColor: '#3498db', 
           },
           headerTitleStyle: {
-            color: 'rgba(0, 0, 0, .5)', 
+            color: 'white', 
             fontSize: 18,
             fontWeight: 'bold',
             letterSpacing: 1
           },
-          headerTintColor:  '#000', 
+          headerTintColor:  'white', 
         }}
         />
 
         <Stack.Screen name="Register" component={RegisterScreen} 
          options={{
           headerShown: true,
-          headerTitle: 'Register', 
+          headerTitle: 'User Form', 
           headerStyle: {
             backgroundColor: '#3498db', 
           },
           headerTitleStyle: {
-            color: 'rgba(0, 0, 0, .5)', 
+            color: 'white', 
             fontSize: 18,
             fontWeight: 'bold',
             letterSpacing: 1
           },
-          headerTintColor:  '#000', 
+          headerTintColor:  'white', 
         }}
         />
         <Stack.Screen name="home" component={HomeScreen} />

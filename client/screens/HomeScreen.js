@@ -123,13 +123,13 @@ export default function HomeScreen({ navigation }) {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Admin Dashboard</Text>
+        <Text style={styles.headerTitle}>Alscar Tables</Text>
         <View style={styles.headerButtons}>
           <TouchableOpacity onPress={handleAddAdmin} style={styles.iconButton}>
-            <Ionicons name="add-circle" size={28} color="#4A90E2" />
+            <Ionicons name="add-circle" size={30} color="#4A90E2" />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleProfileNav} style={styles.iconButton}>
-            <Ionicons name="person-circle" size={28} color="#4A90E2" />
+            <Ionicons name="person-circle" size={30} color="#4A90E2" />
           </TouchableOpacity>
         </View>
       </View>
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
@@ -201,7 +201,9 @@ const styles = StyleSheet.create({
   {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 7,
+    backgroundColor: '#F5F6F6',
+    borderRadius: 15,
   },
 
   iconButton: 
@@ -213,8 +215,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 12,
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
 
   searchInputContainer: 
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
-    borderRadius: 12,
+    borderRadius: 15,
     paddingHorizontal: 12,
   },
 
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   adminItem: {
     marginBottom: 16,
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 15,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
